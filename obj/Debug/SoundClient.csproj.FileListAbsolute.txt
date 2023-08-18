@@ -1,0 +1,10 @@
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\bin\Debug\SoundClient.exe.config
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\bin\Debug\SoundClient.exe
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\bin\Debug\SoundClient.pdb
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\obj\Debug\SoundClient.Form1.resources
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\obj\Debug\SoundClient.Properties.Resources.resources
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\obj\Debug\SoundClient.csproj.GenerateResource.cache
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\obj\Debug\SoundClient.csproj.CoreCompileInputs.cache
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\obj\Debug\SoundClient.exe
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\obj\Debug\SoundClient.pdb
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\obj\Debug\SoundClient.csprojAssemblyReference.cache
