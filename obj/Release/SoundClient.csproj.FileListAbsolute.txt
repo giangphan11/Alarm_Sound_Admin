@@ -1,0 +1,9 @@
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\bin\Release\SoundClient.exe.config
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\bin\Release\SoundClient.exe
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\bin\Release\SoundClient.pdb
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\obj\Release\SoundClient.Form1.resources
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\obj\Release\SoundClient.Properties.Resources.resources
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\obj\Release\SoundClient.csproj.GenerateResource.cache
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\obj\Release\SoundClient.csproj.CoreCompileInputs.cache
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\obj\Release\SoundClient.exe
+C:\Users\GIANGPHAN\source\repos\SoundClient\SoundClient\obj\Release\SoundClient.pdb

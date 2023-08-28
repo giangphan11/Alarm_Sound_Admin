@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.NetworkInformation;
+using System.Diagnostics;
+using System.Threading;
 
 namespace SoundClient
 {
@@ -26,10 +29,77 @@ namespace SoundClient
             InitializeComponent();
             udpClient = new UdpClient();
             endPoint = new IPEndPoint(IPAddress.Broadcast, port);
-            scanLanDevice();
+            //scanLanDevice();
+           // test();
+            GetAllConnectedIPs();
+            //sanLanDevice2();
         }
 
-        private void scanLanDevice() {
+        private void GetAllConnectedIPs()
+        {
+            // Get the local host's IP address
+            string hostName = Dns.GetHostName();
+            IPAddress[] localIPs = Dns.GetHostAddresses(hostName);
+
+            foreach (var ipAddress in localIPs)
+            {
+                if (ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                {
+                    Console.WriteLine($"Local IP Address: {ipAddress}");
+                }
+            }
+
+            // Get a list of all devices in the network
+            string subnet = "192.168.0";
+            for (int i = 1; i < 255; i++)
+            {
+                string targetIP = $"{subnet}.{i}";
+                PingDevice(targetIP);
+            }
+        }
+
+        static string GetSubnet(IPAddress ipAddress)
+        {
+            string[] octets = ipAddress.ToString().Split('.');
+            if (octets.Length == 0)
+            {
+                return "";
+            }
+            if (octets.Length == 1) {
+                return $"{octets[0]}";
+            }
+            if (octets.Length == 2)
+            {
+                return $"{octets[0]}.{octets[1]}";
+            }
+            return $"{octets[0]}.{octets[1]}.{octets[2]}";
+        }
+
+         void PingDevice(string targetIP)
+        {
+            Ping ping = new Ping();
+            ping.PingCompleted += (sender, e) =>
+            {
+                if (e.Reply == null){
+                    return;
+                }
+                if (e.Reply.Status == IPStatus.Success)
+                {
+                    Console.WriteLine($"Connected IP: {e.Reply.Address}");
+                    ipAddressList.Add(e.Reply.Address.ToString());
+                    CheckBox cb = new CheckBox();
+                    cb.Text = e.Reply.Address.ToString();
+                    cb.Click += cb_CheckedChanged;
+                    cb.AutoSize = true;
+                    flAddress.Controls.Add(cb);
+                }
+            };
+
+            ping.SendAsync(targetIP, 1000, null);
+        }
+
+        
+    private void scanLanDevice() {
             try
             {
                 string hostName = Dns.GetHostName();
@@ -90,21 +160,39 @@ namespace SoundClient
                     MessageBox.Show("Vui lòng chọn IP!");
                     return;
                 }
+                actionOnlySend("PlaySound");
                 MessageBox.Show("IP đã chọn" + string.Join(";", this.ipAddressListSelected));
-                actionOnlySend();
             }
             
         }
 
         private void stopSound_Click(object sender, EventArgs e)
         {
-            byte[] data = System.Text.Encoding.ASCII.GetBytes("StopSound");
-            udpClient.Send(data, data.Length, endPoint);
-            MessageBox.Show("Đã dừng âm báo");
+            //1. Check xem có đang click gửi tất cả hay không?
+            if (cbSendAll.Checked)
+            {
+                // Gửi tất cả
+                byte[] data = System.Text.Encoding.ASCII.GetBytes("StopSound");
+                udpClient.Send(data, data.Length, endPoint);
+                MessageBox.Show("Đã dừng âm báo");
+            }
+            else
+            {
+                // Gửi theo từng địa chỉ ip đã chọn
+                if (this.ipAddressListSelected.Count <= 0)
+                {
+                    MessageBox.Show("Vui lòng chọn IP!");
+                    return;
+                }
+                actionOnlySend("StopSound");
+                MessageBox.Show("IP đã chọn" + string.Join(";", this.ipAddressListSelected) + " dừng!");
+            }
+
+            
         }
 
 
-        private void actionOnlySend()
+        private void actionOnlySend(string key)
         {
             try
             {
@@ -119,17 +207,23 @@ namespace SoundClient
                     using (UdpClient udpClient = new UdpClient())
                     {
                         // Gửi thông điệp báo còi thông qua giao thức UDP
-                        byte[] data = System.Text.Encoding.ASCII.GetBytes("PlaySound");
+                        byte[] data = System.Text.Encoding.ASCII.GetBytes(key);
                         udpClient.Send(data, data.Length, endPoint);
                     }
 
-                    MessageBox.Show("Horn signal sent to " + ipAddress + ":" + port);
+                    //MessageBox.Show("Horn signal sent to " + ipAddress + ":" + port);
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error occurred while sending horn signal: " + ex.Message);
             }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            byte[] data = System.Text.Encoding.ASCII.GetBytes("StopSound");
+            udpClient.Send(data, data.Length, endPoint);
         }
     }
 }
