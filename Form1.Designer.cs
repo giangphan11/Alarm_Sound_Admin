@@ -47,6 +47,10 @@
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
             this.cbCurrentIP = new System.Windows.Forms.ComboBox();
+            this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
+            this.tbNewIPName = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.btnChange = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -58,6 +62,7 @@
             this.groupBox4.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
+            this.flowLayoutPanel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
@@ -251,6 +256,7 @@
             // 
             this.flowLayoutPanel2.Controls.Add(this.label3);
             this.flowLayoutPanel2.Controls.Add(this.cbCurrentIP);
+            this.flowLayoutPanel2.Controls.Add(this.flowLayoutPanel3);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 18);
@@ -272,9 +278,47 @@
             this.cbCurrentIP.FormattingEnabled = true;
             this.cbCurrentIP.Location = new System.Drawing.Point(3, 20);
             this.cbCurrentIP.Name = "cbCurrentIP";
-            this.cbCurrentIP.Size = new System.Drawing.Size(298, 24);
+            this.cbCurrentIP.Size = new System.Drawing.Size(140, 24);
             this.cbCurrentIP.TabIndex = 1;
             this.cbCurrentIP.SelectedIndexChanged += new System.EventHandler(this.comboBox_SelectedIndexChanged);
+            // 
+            // flowLayoutPanel3
+            // 
+            this.flowLayoutPanel3.Controls.Add(this.label4);
+            this.flowLayoutPanel3.Controls.Add(this.tbNewIPName);
+            this.flowLayoutPanel3.Controls.Add(this.btnChange);
+            this.flowLayoutPanel3.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.flowLayoutPanel3.Location = new System.Drawing.Point(149, 3);
+            this.flowLayoutPanel3.Name = "flowLayoutPanel3";
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(200, 100);
+            this.flowLayoutPanel3.TabIndex = 2;
+            // 
+            // tbNewIPName
+            // 
+            this.tbNewIPName.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tbNewIPName.Location = new System.Drawing.Point(3, 20);
+            this.tbNewIPName.Name = "tbNewIPName";
+            this.tbNewIPName.Size = new System.Drawing.Size(163, 27);
+            this.tbNewIPName.TabIndex = 0;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(3, 0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(99, 17);
+            this.label4.TabIndex = 1;
+            this.label4.Text = "Định danh mới";
+            // 
+            // btnChange
+            // 
+            this.btnChange.Location = new System.Drawing.Point(3, 53);
+            this.btnChange.Name = "btnChange";
+            this.btnChange.Size = new System.Drawing.Size(99, 32);
+            this.btnChange.TabIndex = 2;
+            this.btnChange.Text = "Đổi";
+            this.btnChange.UseVisualStyleBackColor = true;
+            this.btnChange.Click += new System.EventHandler(this.btnChange_Click);
             // 
             // Form1
             // 
@@ -311,6 +355,8 @@
             this.flowLayoutPanel1.PerformLayout();
             this.flowLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel2.PerformLayout();
+            this.flowLayoutPanel3.ResumeLayout(false);
+            this.flowLayoutPanel3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -336,6 +382,10 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox cbCurrentIP;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox tbNewIPName;
+        private System.Windows.Forms.Button btnChange;
     }
 }
 

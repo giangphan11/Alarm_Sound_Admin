@@ -1,0 +1,14 @@
+<Books>
+  <Book ID="1">
+    <Title>Book Title 1</Title>
+    <Author>Author 1</Author>
+  </Book>
+  <Book ID="2">
+    <Title>Book Title 2</Title>
+    <Author>Author 2</Author>
+  </Book>
+  <Book ID="3">
+    <Title>Book Title 3</Title>
+    <Author>Author 3</Author>
+  </Book>
+</Books>

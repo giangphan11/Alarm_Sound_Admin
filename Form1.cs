@@ -13,7 +13,7 @@ using System.Net.NetworkInformation;
 using System.Diagnostics;
 using System.Threading;
 using System.Text.RegularExpressions;
-
+using System.Xml;
 namespace SoundClient
 {
     public partial class Form1 : Form
@@ -22,7 +22,25 @@ namespace SoundClient
         private IPEndPoint endPoint;
 
         List<string> ipAddressList = new List<string>();
+        List<string> ipBaseList= new List<string>();
         List<string> ipAddressListSelected = new List<string>();
+
+        private static string fileName = "ListIP.xml";
+        private static string rootXMLName = "IPs";
+
+        /// <summary>
+        /// TEST
+        /// </summary>
+        //private static string fileXMLPath = @"E:\Download\IT Study\CSharp\listip.xml";
+
+        /// <summary>
+        /// BUILD
+        /// </summary>
+        private static string fileXMLPath = @"C:\Program Files (x86)\GIANG PHAN BA\SoundAdminSetup\file\listip.xml";
+
+        // Create XML document
+        private XmlDocument xmlDoc = new XmlDocument();
+        private string ipChangeSelected = "";
 
         private static int port = 12345;
         public Form1()
@@ -30,15 +48,12 @@ namespace SoundClient
             InitializeComponent();
             udpClient = new UdpClient();
             endPoint = new IPEndPoint(IPAddress.Broadcast, port);
-            //scanLanDevice();
-            // test();
-            //GetAllConnectedIPs();
-            //sanLanDevice2();
             getLocalHost();
-            
+
         }
 
-        private void getLocalHost() {
+        private void getLocalHost()
+        {
             // Get the local host's IP address
             string hostName = Dns.GetHostName();
             IPAddress[] localIPs = Dns.GetHostAddresses(hostName);
@@ -95,16 +110,19 @@ namespace SoundClient
                 if (e.Reply.Status == IPStatus.Success)
                 {
                     Console.WriteLine($"Connected IP: {e.Reply.Address}");
-                    ipAddressList.Add(e.Reply.Address.ToString());
-                    CheckBox cb = new CheckBox();
-                    cb.Text = e.Reply.Address.ToString();
-                    cb.Click += cb_CheckedChanged;
-                    cb.AutoSize = true;
-                    flAddress.Controls.Add(cb);
-                    
-                    // Add items to the ComboBox
-                    cbCurrentIP.Items.Add(e.Reply.Address.ToString());
-                    
+                    String ip = e.Reply.Address.ToString().Trim();
+                    if (this.ipAddressList.Contains(ip) == false)
+                    {
+                        ipAddressList.Add(ip);
+                        CheckBox cb = new CheckBox();
+                        cb.Text = e.Reply.Address.ToString();
+                        cb.Click += cb_CheckedChanged;
+                        cb.AutoSize = true;
+                        flAddress.Controls.Add(cb);
+
+                        // Add items to the ComboBox
+                        cbCurrentIP.Items.Add(ip);
+                    }
                 }
             };
 
@@ -123,12 +141,15 @@ namespace SoundClient
                 {
                     if (ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                     {
-                        ipAddressList.Add(ipAddress.ToString());
-                        CheckBox cb = new CheckBox();
-                        cb.Text = ipAddress.ToString();
-                        cb.Click += cb_CheckedChanged;
-                        cb.AutoSize = true;
-                        flAddress.Controls.Add(cb);
+                        String ip = ipAddress.ToString().Trim();
+                        if (this.ipAddressList.Contains(ip) == false) {
+                            ipAddressList.Add(ip);
+                            CheckBox cb = new CheckBox();
+                            cb.Text = ipAddress.ToString();
+                            cb.Click += cb_CheckedChanged;
+                            cb.AutoSize = true;
+                            flAddress.Controls.Add(cb);
+                        }
                     }
                 }
 
@@ -276,8 +297,8 @@ namespace SoundClient
         {
             // Handle the selection change event here
             // For example:
-             string selectedValue = cbCurrentIP.SelectedItem.ToString();
-            MessageBox.Show("Selected: " + selectedValue);
+            string selectedValue = cbCurrentIP.SelectedItem.ToString();
+            ipChangeSelected = selectedValue;
         }
 
         private void btnScan_Click(object sender, EventArgs e)
@@ -285,23 +306,158 @@ namespace SoundClient
             if (isValiIP())
             {
                 // Xoá hết data trước đó
-                ipAddressList.Clear();
+                // Neesu
+                //ipAddressList.Clear();
                 // Clear any existing items
-                cbCurrentIP.Items.Clear();
+                //cbCurrentIP.Items.Clear();
 
-                flAddress.Controls.Clear();
-                string ipbase = "";
-                string[] ips = tbIpBase.Text.Trim().Split('.');
+                //flAddress.Controls.Clear();
+
+                string ipbase = tbIpBase.Text.Trim();
+                if (this.ipBaseList.Contains(ipbase))
+                {
+                    // Trong danh sách tìm kiếm đã có thì không tìm kiếm nữa
+                    return;
+                }
+                
+                string[] ips = ipbase.Split('.');
+                String ipCut = "";
                 if (ips.Length >= 3)
                 {
-                    ipbase = string.Join(".", ips[0], ips[1], ips[2]);
+                    ipCut = string.Join(".", ips[0], ips[1], ips[2]);
                 }
-                GetAllConnectedIPs(ipbase);
+                GetAllConnectedIPs(ipCut);
+                this.ipBaseList.Add(ipbase);
             }
             else
             {
                 MessageBox.Show("Địa chỉ IP không hợp lệ!");
             }
+        }
+
+
+
+        private void createXML()
+        {
+            // Create XML document
+            XmlDocument xmlDoc = new XmlDocument();
+
+            // Create the root element
+            XmlElement rootElement = xmlDoc.CreateElement(rootXMLName);
+
+            xmlDoc.AppendChild(rootElement);
+
+            // Create book elements and add them to the root
+            for (int i = 1; i <= 3; i++)
+            {
+                XmlElement bookElement = xmlDoc.CreateElement("Book");
+                bookElement.SetAttribute("ID", i.ToString());
+
+                XmlElement titleElement = xmlDoc.CreateElement("Title");
+                titleElement.InnerText = $"Book Title {i}";
+
+                XmlElement authorElement = xmlDoc.CreateElement("Author");
+                authorElement.InnerText = $"Author {i}";
+
+                bookElement.AppendChild(titleElement);
+                bookElement.AppendChild(authorElement);
+
+                rootElement.AppendChild(bookElement);
+            }
+
+            // Save the XML document to a file
+            xmlDoc.Save(@"E:\Download\IT Study\CSharp\listip.xml");
+
+            Console.WriteLine("XML data has been written to the file.");
+        }
+
+        private void btnChange_Click(object sender, EventArgs e)
+        {
+            // thực hiện đổi định danh
+            if (this.ipChangeSelected.Trim().Length <= 0) {
+                showMessage("Vui lòng chọn IP cần đổi!");
+                return;
+            }
+
+            if (this.tbNewIPName.Text.Trim().Length <= 0) {
+                showMessage("Tên định danh không được để trống");
+                return;
+            }
+            return;
+            // Ý tưởng
+            // Lưu vào file xml
+            // key là ID và value là tên mới
+            saveIPName(this.ipChangeSelected.Trim().ToString(), this.tbNewIPName.Text.Trim().ToString());
+            
+        }
+
+        /// <summary>
+        /// Lưu định danh theo IP
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="ipName"></param>
+        private void saveIPName(string ip, string ipName) {
+            try
+            {
+                xmlDoc.Load(fileXMLPath);
+
+                // Check if the root element exists
+                XmlElement rootElement = xmlDoc.DocumentElement;
+                if (rootElement != null && rootElement.Name == rootXMLName)
+                {
+                    // Read and display the XML data
+                    XmlNodeList bookNodes = rootElement.SelectNodes("AD");
+
+                    foreach (XmlNode bookNode in bookNodes)
+                    {
+                        string id = bookNode.Attributes["ID"].Value;
+                        string name = bookNode.SelectSingleNode("Name").InnerText;
+                        
+                       // listBoxBooks.Items.Add($"ID: {id}, Title: {title}, Author: {author}");
+                    }
+                }
+                else
+                {
+                    // Tạo mới
+                    // Create the root element
+                    rootElement = xmlDoc.CreateElement(rootXMLName);
+
+                    XmlElement bookElement = xmlDoc.CreateElement("AD");
+                    bookElement.SetAttribute("ID", ip);
+
+                    XmlElement titleElement = xmlDoc.CreateElement("Name");
+                    titleElement.InnerText = ipName;
+                    rootElement.AppendChild(bookElement);
+                    xmlDoc.AppendChild(rootElement);
+                    xmlDoc.Save(fileXMLPath);
+                    MessageBox.Show("Lưu thành công");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Tạo mới
+                // Create the root element
+                XmlElement rootElement = xmlDoc.CreateElement(rootXMLName);
+
+                XmlElement bookElement = xmlDoc.CreateElement("AD");
+                bookElement.SetAttribute("ID", ip);
+
+                XmlElement titleElement = xmlDoc.CreateElement("Name");
+                titleElement.InnerText = ipName;
+                bookElement.AppendChild(titleElement);
+                rootElement.AppendChild(bookElement);
+                xmlDoc.AppendChild(rootElement);
+                xmlDoc.Save(fileXMLPath);
+                MessageBox.Show("Lưu thành công");
+            }
+        }
+
+        /// <summary>
+        /// Show thông báo
+        /// </summary>
+        /// <param name="content"></param>
+        private void showMessage(string content) {
+            MessageBox.Show(content);
         }
     }
 }
