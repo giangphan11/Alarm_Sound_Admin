@@ -32,12 +32,12 @@ namespace SoundClient
         /// <summary>
         /// TEST
         /// </summary>
-        private static string fileXMLPath = @"E:\Download\IT Study\CSharp\listip.xml";
+        //private static string fileXMLPath = @"E:\Download\IT Study\CSharp\listip.xml";
 
         /// <summary>
         /// BUILD
         /// </summary>
-        //private static string fileXMLPath = @"C:\Program Files (x86)\GIANG PHAN BA\SoundAdminSetup\file\listip.xml";
+        private static string fileXMLPath = @"C:\Program Files (x86)\GIANG PHAN BA\SoundAdminSetup\file\listip.xml";
 
         // Create XML document
         private XmlDocument xmlDoc = new XmlDocument();
@@ -141,10 +141,12 @@ namespace SoundClient
                     {
                         AddressItem addressItem = new AddressItem();
                         addressItem.ip = ip;
-                        addressItem.name = "";
+                        addressItem.name = this.mapNameFromXML(addressItem.ip);
                         ipAddressList.Add(addressItem);
                         CheckBox cb = new CheckBox();
-                        cb.Text = addressItem.ip;
+                        //cb.Text = addressItem.ip;
+                        cb.Tag = addressItem;
+                        cb.Text = addressItem.name;
                         cb.Click += cb_CheckedChanged;
                         cb.AutoSize = true;
                         flAddress.Controls.Add(cb);
@@ -175,10 +177,11 @@ namespace SoundClient
                         if (this.ipAddressList.FirstOrDefault(x => x.ip == ip) == null) {
                             AddressItem addressItem = new AddressItem();
                             addressItem.ip = ip;
-                            addressItem.name = "";
+                            addressItem.name = this.mapNameFromXML(addressItem.ip);
                             ipAddressList.Add(addressItem);
                             CheckBox cb = new CheckBox();
-                            cb.Text = ipAddress.ToString();
+                            cb.Tag = addressItem;
+                            cb.Text = addressItem.ip;
                             cb.Click += cb_CheckedChanged;
                             cb.AutoSize = true;
                             flAddress.Controls.Add(cb);
@@ -196,16 +199,26 @@ namespace SoundClient
             }
         }
 
+        private String mapNameFromXML(String ip) {
+            if (this.ipAddressListRenameFromXML.Count == 0) {
+                return ip;
+            }
+            AddressItem addressItem = this.ipAddressListRenameFromXML.FirstOrDefault(x => x.ip == ip);
+            if (addressItem == null) {
+                return ip;
+            }
+            return addressItem.name;
+        }
+
         private void cb_CheckedChanged(object sender, EventArgs e)
         {
 
             if (sender is CheckBox)
             {
                 CheckBox cbClick = (CheckBox)sender;
-                String ipAddress = cbClick.Text.ToString().Trim();
-                AddressItem addressItem = new AddressItem();
-                addressItem.ip = ipAddress;
-                addressItem.name = "";
+                
+                AddressItem addressItem = (AddressItem) cbClick.Tag;
+                if (addressItem == null) { return; }
                 if (cbClick.Checked)
                 {
                     
