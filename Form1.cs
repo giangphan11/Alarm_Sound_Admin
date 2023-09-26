@@ -37,7 +37,7 @@ namespace SoundClient
         /// <summary>
         /// BUILD
         /// </summary>
-        private static string fileXMLPath = @"C:\Program Files (x86)\GIANG PHAN BA\SoundAdminSetup\file\listip.xml";
+       private static string fileXMLPath = @"C:\Program Files (x86)\GIANG PHAN BA\SoundAdminSetup\file\listip.xml";
 
         // Create XML document
         private XmlDocument xmlDoc = new XmlDocument();
@@ -51,30 +51,36 @@ namespace SoundClient
             endPoint = new IPEndPoint(IPAddress.Broadcast, port);
             loadListRenameFromXML();
             getLocalHost();
-
         }
 
         private void loadListRenameFromXML()
         {
-            xmlDoc.Load(fileXMLPath);
-
-            // Check if the root element exists
-            XmlElement rootElement = xmlDoc.DocumentElement;
-            if (rootElement != null && rootElement.Name == rootXMLName)
+            try
             {
-                // Get all AD elements in the XML
-                XmlNodeList adNodes = xmlDoc.SelectNodes("//AD");
+                xmlDoc.Load(fileXMLPath);
 
-                foreach (XmlNode adNode in adNodes)
+                // Check if the root element exists
+                XmlElement rootElement = xmlDoc.DocumentElement;
+                if (rootElement != null && rootElement.Name == rootXMLName)
                 {
-                    // Extract ID and Name from each AD element
-                    string id = adNode.Attributes["ID"].Value;
-                    string name = adNode.SelectSingleNode("Name").InnerText;
+                    // Get all AD elements in the XML
+                    XmlNodeList adNodes = xmlDoc.SelectNodes("//AD");
 
-                    // Create an IPAddressInfo object and add it to the list
-                    ipAddressListRenameFromXML.Add(new AddressItem { ip = id, name = name });
+                    foreach (XmlNode adNode in adNodes)
+                    {
+                        // Extract ID and Name from each AD element
+                        string id = adNode.Attributes["ID"].Value;
+                        string name = adNode.SelectSingleNode("Name").InnerText;
+
+                        // Create an IPAddressInfo object and add it to the list
+                        ipAddressListRenameFromXML.Add(new AddressItem { ip = id, name = name });
+                    }
                 }
+
             }
+            catch (Exception ex)
+            {
+            } 
         }
 
         private void getLocalHost()
