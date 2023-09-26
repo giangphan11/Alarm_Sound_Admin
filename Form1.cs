@@ -21,9 +21,10 @@ namespace SoundClient
         private UdpClient udpClient;
         private IPEndPoint endPoint;
 
-        List<string> ipAddressList = new List<string>();
-        List<string> ipBaseList= new List<string>();
-        List<string> ipAddressListSelected = new List<string>();
+        List<AddressItem> ipAddressList = new List<AddressItem>();
+        List<AddressItem> ipAddressListRenameFromXML = new List<AddressItem>();
+        List<AddressItem> ipBaseList = new List<AddressItem>();
+        List<AddressItem> ipAddressListSelected = new List<AddressItem>();
 
         private static string fileName = "ListIP.xml";
         private static string rootXMLName = "IPs";
@@ -31,12 +32,12 @@ namespace SoundClient
         /// <summary>
         /// TEST
         /// </summary>
-        //private static string fileXMLPath = @"E:\Download\IT Study\CSharp\listip.xml";
+        private static string fileXMLPath = @"E:\Download\IT Study\CSharp\listip.xml";
 
         /// <summary>
         /// BUILD
         /// </summary>
-        private static string fileXMLPath = @"C:\Program Files (x86)\GIANG PHAN BA\SoundAdminSetup\file\listip.xml";
+        //private static string fileXMLPath = @"C:\Program Files (x86)\GIANG PHAN BA\SoundAdminSetup\file\listip.xml";
 
         // Create XML document
         private XmlDocument xmlDoc = new XmlDocument();
@@ -48,8 +49,32 @@ namespace SoundClient
             InitializeComponent();
             udpClient = new UdpClient();
             endPoint = new IPEndPoint(IPAddress.Broadcast, port);
+            loadListRenameFromXML();
             getLocalHost();
 
+        }
+
+        private void loadListRenameFromXML()
+        {
+            xmlDoc.Load(fileXMLPath);
+
+            // Check if the root element exists
+            XmlElement rootElement = xmlDoc.DocumentElement;
+            if (rootElement != null && rootElement.Name == rootXMLName)
+            {
+                // Get all AD elements in the XML
+                XmlNodeList adNodes = xmlDoc.SelectNodes("//AD");
+
+                foreach (XmlNode adNode in adNodes)
+                {
+                    // Extract ID and Name from each AD element
+                    string id = adNode.Attributes["ID"].Value;
+                    string name = adNode.SelectSingleNode("Name").InnerText;
+
+                    // Create an IPAddressInfo object and add it to the list
+                    ipAddressListRenameFromXML.Add(new AddressItem { ip = id, name = name });
+                }
+            }
         }
 
         private void getLocalHost()
@@ -111,11 +136,15 @@ namespace SoundClient
                 {
                     Console.WriteLine($"Connected IP: {e.Reply.Address}");
                     String ip = e.Reply.Address.ToString().Trim();
-                    if (this.ipAddressList.Contains(ip) == false)
+                    //if (this.ipAddressList.Contains(ip) == false)
+                    if (this.ipAddressList.FirstOrDefault(x => x.ip == ip) == null)
                     {
-                        ipAddressList.Add(ip);
+                        AddressItem addressItem = new AddressItem();
+                        addressItem.ip = ip;
+                        addressItem.name = "";
+                        ipAddressList.Add(addressItem);
                         CheckBox cb = new CheckBox();
-                        cb.Text = e.Reply.Address.ToString();
+                        cb.Text = addressItem.ip;
                         cb.Click += cb_CheckedChanged;
                         cb.AutoSize = true;
                         flAddress.Controls.Add(cb);
@@ -142,8 +171,12 @@ namespace SoundClient
                     if (ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                     {
                         String ip = ipAddress.ToString().Trim();
-                        if (this.ipAddressList.Contains(ip) == false) {
-                            ipAddressList.Add(ip);
+                        //if (this.ipAddressList.Contains(ip) == false) {
+                        if (this.ipAddressList.FirstOrDefault(x => x.ip == ip) == null) {
+                            AddressItem addressItem = new AddressItem();
+                            addressItem.ip = ip;
+                            addressItem.name = "";
+                            ipAddressList.Add(addressItem);
                             CheckBox cb = new CheckBox();
                             cb.Text = ipAddress.ToString();
                             cb.Click += cb_CheckedChanged;
@@ -170,13 +203,17 @@ namespace SoundClient
             {
                 CheckBox cbClick = (CheckBox)sender;
                 String ipAddress = cbClick.Text.ToString().Trim();
+                AddressItem addressItem = new AddressItem();
+                addressItem.ip = ipAddress;
+                addressItem.name = "";
                 if (cbClick.Checked)
                 {
-                    this.ipAddressListSelected.Add(ipAddress);
+                    
+                    this.ipAddressListSelected.Add(addressItem);
                 }
                 else
                 {
-                    this.ipAddressListSelected.Remove(ipAddress);
+                    this.ipAddressListSelected.Remove(addressItem);
                 }
             }
         }
@@ -238,10 +275,10 @@ namespace SoundClient
                 // string[] ipAddressList = txtIpAddress.Text.Split(';'); // Lấy danh sách địa chỉ IP từ người dùng, phân tách bằng dấu chấm phẩy (;)
                 int port = 12345; // Cổng mà máy nhận sẽ lắng nghe (giống như ở ứng dụng nhận)
 
-                foreach (string ipAddress in this.ipAddressListSelected)
+                foreach (AddressItem addressItem in this.ipAddressListSelected)
                 {
                     // Chuyển đổi địa chỉ IP và cổng thành IPEndPoint
-                    IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ipAddress), port);
+                    IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(addressItem.ip), port);
 
                     using (UdpClient udpClient = new UdpClient())
                     {
@@ -314,7 +351,9 @@ namespace SoundClient
                 //flAddress.Controls.Clear();
 
                 string ipbase = tbIpBase.Text.Trim();
-                if (this.ipBaseList.Contains(ipbase))
+                
+                //if (this.ipBaseList.Contains(ipbase))
+                if (this.ipBaseList.FirstOrDefault(x => x.ip == ipbase) != null)
                 {
                     // Trong danh sách tìm kiếm đã có thì không tìm kiếm nữa
                     return;
@@ -327,7 +366,10 @@ namespace SoundClient
                     ipCut = string.Join(".", ips[0], ips[1], ips[2]);
                 }
                 GetAllConnectedIPs(ipCut);
-                this.ipBaseList.Add(ipbase);
+                AddressItem addressItem = new AddressItem();
+                addressItem.ip = ipbase;
+                addressItem.name = "";
+                this.ipBaseList.Add(addressItem);
             }
             else
             {
@@ -383,7 +425,6 @@ namespace SoundClient
                 showMessage("Tên định danh không được để trống");
                 return;
             }
-            return;
             // Ý tưởng
             // Lưu vào file xml
             // key là ID và value là tên mới
@@ -405,28 +446,63 @@ namespace SoundClient
                 XmlElement rootElement = xmlDoc.DocumentElement;
                 if (rootElement != null && rootElement.Name == rootXMLName)
                 {
-                    // Read and display the XML data
-                    XmlNodeList bookNodes = rootElement.SelectNodes("AD");
+                    
 
-                    foreach (XmlNode bookNode in bookNodes)
+                    // Find the AD element with the specified ID
+                    XmlNode adNode = xmlDoc.SelectSingleNode($"//AD[@ID='{ip}']");
+
+                    if (adNode != null)
                     {
-                        string id = bookNode.Attributes["ID"].Value;
-                        string name = bookNode.SelectSingleNode("Name").InnerText;
-                        
-                       // listBoxBooks.Items.Add($"ID: {id}, Title: {title}, Author: {author}");
+                        // ton tai
+                        // Extract the Name element's text
+                        XmlNode nameNode = adNode.SelectSingleNode("Name");
+                       
+                        if (nameNode != null)
+                        {
+                            nameNode.InnerText = ipName;
+                            xmlDoc.Save(fileXMLPath);
+                            MessageBox.Show("Cập nhật thành công");
+                        }
                     }
+                    else {
+                        XmlElement bookElement = xmlDoc.CreateElement("AD");
+                        bookElement.SetAttribute("ID", ip);
+
+                        XmlElement titleElement = xmlDoc.CreateElement("Name");
+                        titleElement.InnerText = ipName;
+                        bookElement.AppendChild(titleElement);
+                        rootElement.AppendChild(bookElement);
+                        xmlDoc.AppendChild(rootElement);
+                        xmlDoc.Save(fileXMLPath);
+                        MessageBox.Show("Lưu thành công");
+                    }
+                    
+
+
+                    // Read and display the XML data
+                    //XmlNodeList bookNodes = rootElement.SelectNodes("AD");
+
+                    //foreach (XmlNode bookNode in bookNodes)
+                    //{
+                    //    string id = bookNode.Attributes["ID"].Value;
+                    //    string name = bookNode.SelectSingleNode("Name").InnerText;
+                        
+                    //   // listBoxBooks.Items.Add($"ID: {id}, Title: {title}, Author: {author}");
+                    //}
                 }
                 else
                 {
                     // Tạo mới
                     // Create the root element
                     rootElement = xmlDoc.CreateElement(rootXMLName);
+                    
 
                     XmlElement bookElement = xmlDoc.CreateElement("AD");
                     bookElement.SetAttribute("ID", ip);
 
                     XmlElement titleElement = xmlDoc.CreateElement("Name");
                     titleElement.InnerText = ipName;
+                    bookElement.AppendChild(titleElement);
                     rootElement.AppendChild(bookElement);
                     xmlDoc.AppendChild(rootElement);
                     xmlDoc.Save(fileXMLPath);
